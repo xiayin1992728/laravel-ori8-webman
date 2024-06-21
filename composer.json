@@ -26,9 +26,6 @@
         "phpunit/phpunit": "^9.5.8"
     },
     "autoload": {
-        "files": [
-          "src/helper.php"
-        ],
         "psr-4": {
             "Yajra\\": "src/"
         }
