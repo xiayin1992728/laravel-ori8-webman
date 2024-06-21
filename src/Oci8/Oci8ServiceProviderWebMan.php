@@ -8,6 +8,7 @@ use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use support\Container;
+use support\Db;
 use Webman\Bootstrap;
 use Workerman\Timer;
 use Workerman\Worker;
@@ -60,5 +61,11 @@ class Oci8ServiceProviderWebMan implements Bootstrap
 
             return $db;
         });
+        if ($worker) {
+            Timer::add(55, function () {
+                Db::connection("oracle")
+                    ->select("select 1 from dual");
+            });
+        }
     }
 }
