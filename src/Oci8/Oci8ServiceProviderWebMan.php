@@ -3,47 +3,20 @@
 namespace Yajra\Oci8;
 
 use Illuminate\Database\Connection;
+use Illuminate\Pagination\Cursor;
+use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\ServiceProvider;
-use Yajra\Oci8\Auth\OracleUserProvider;
+use support\Container;
+use Webman\Bootstrap;
+use Workerman\Timer;
+use Workerman\Worker;
 use Yajra\Oci8\Connectors\OracleConnector as Connector;
 
-class Oci8ServiceProvider extends ServiceProvider
+class Oci8ServiceProviderWebMan implements Bootstrap
 {
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
-
-    /**
-     * Boot Oci8 Provider.
-     */
-    public function boot()
+    public static function start(?Worker $worker)
     {
-        $this->publishes([
-            __DIR__.'/../config/oracle.php' => config_path('oracle.php'),
-        ], 'oracle');
-
-        Auth::provider('oracle', function ($app, array $config) {
-            return new OracleUserProvider($app['hash'], $config['model']);
-        });
-    }
-
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        if (file_exists(config_path('oracle.php'))) {
-            $this->mergeConfigFrom(config_path('oracle.php'), 'database.connections');
-        } else {
-            $this->mergeConfigFrom(__DIR__.'/../config/oracle.php', 'database.connections');
-        }
-
         Connection::resolverFor('oracle', function ($connection, $database, $prefix, $config) {
             if (isset($config['dynamic']) && ! empty($config['dynamic'])) {
                 call_user_func_array($config['dynamic'], [&$config]);
@@ -87,15 +60,5 @@ class Oci8ServiceProvider extends ServiceProvider
 
             return $db;
         });
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return string[]
-     */
-    public function provides()
-    {
-        return [];
     }
 }
